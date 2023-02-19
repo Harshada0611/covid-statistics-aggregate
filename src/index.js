@@ -19,6 +19,36 @@ app.get('/', (req, resp) => {
 
 
 
+
+//total recovered 
+app.get('/totalRecovered', async (req, resp) => {
+    try {
+        const total = await CovidCollection.aggregate([
+            {
+                $group: {
+                    _id: "total",
+                    recovered: {
+                        $sum: "$recovered"
+                    }
+
+                }
+            }])
+        // console.log(total)
+        // resp.json(total)
+        resp.json({ total })
+    }
+    catch {
+        return resp.status(200).json({
+            status: 'fail',
+            message: "error"
+        })
+    }
+})
+
+
+
+
+
 app.listen(port, () => console.log(`App listening on port ${port}!`))
 
 module.exports = app;
