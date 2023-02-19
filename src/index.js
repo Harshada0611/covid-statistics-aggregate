@@ -146,7 +146,7 @@ app.get('/healthyStates', async (req, resp) => {
         let data = await CovidCollection.aggregate([
             {
                 $addFields: {
-                    mortality: { $round: [{ $divide: ["$infected", "$recovered"] }, 5] }
+                    mortality: { $round: [{ $divide: ["$death", "$infected"] }, 5] }
                 }
             },
             {
