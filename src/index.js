@@ -140,6 +140,44 @@ app.get('/hotspotStates', async (req, resp) => {
 })
 
 
+//healthy states
+app.get('/healthyStates', async (req, resp) => {
+    try {
+        let data = await CovidCollection.aggregate([
+            {
+                $addFields: {
+                    mortality: { $round: [{ $divide: ["$infected", "$recovered"] }, 5] }
+                }
+            },
+            {
+                $match: { mortality: { $lt:0.005 } }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    state: "$state",
+                    mortality: "$mortality"
+                }
+            }
+        ])
+
+        if (data.length === 0) {
+            resp.send("No state found having mortality rate less than 0.005")
+        }
+        else {
+            resp.send(data)
+        }
+    }
+
+    catch {
+        resp.json({
+            status: "fail",
+            message: "error"
+        })
+    }
+})
+
+
 
 
 app.listen(port, () => console.log(`App listening on port ${port}!`))
