@@ -101,6 +101,44 @@ app.get('/totalDeath', async (req, resp) => {
 })
 
 
+//hotspot states
+app.get('/hotspotStates', async (req, resp) => {
+    try {
+        let data = await CovidCollection.aggregate([
+            {
+                $addFields: {
+                    rate: {
+                        $round: [{ $subtract: [1, { $divide: ["$recovered", "$infected"] }] }, 5]
+                    }
+                }
+            },
+            {
+                $match: { rate: { $gt: 0.1 } }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    state: "$state",
+                    rate: "$rate"
+                }
+            }
+        ])
+        if (data.length === 0) {
+            resp.send("No state found having rate greater than 0.1")
+        }
+        else {
+            resp.send(data)
+        }
+    }
+    
+    catch {
+        return resp.json({
+            status: "fail",
+            message: "error"
+        })
+    }
+})
+
 
 
 
