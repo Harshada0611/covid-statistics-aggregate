@@ -76,6 +76,29 @@ app.get('/totalActive', async (req, resp) => {
 })
 
 
+//total death
+app.get('/totalDeath', async (req, resp) => {
+    try {
+        let data = await CovidCollection.aggregate([
+            {
+                $group: {
+                    _id: "total",
+                    total: {
+                        $sum: "$death"
+                    }
+                }
+            }
+        ])
+        //console.log(data[0].total)
+        resp.send(data)
+    }
+    catch {
+        return resp.json({
+            status: "fail",
+            message: "error"
+        })
+    }
+})
 
 
 
